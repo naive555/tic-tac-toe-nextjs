@@ -1,7 +1,6 @@
 "use client";
 
 import { signIn, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export const LoginButton = () => {
@@ -21,12 +20,11 @@ export const RegisterButton = () => {
 };
 
 export const LogoutButton = () => {
-  const router = useRouter();
   return (
     <button
       style={{ marginRight: 10 }}
       onClick={async () => {
-        await signOut({ callbackUrl: "http://localhost:3000/foo" });
+        await signOut({ callbackUrl: "http://localhost:3000" });
       }}
     >
       Sign Out

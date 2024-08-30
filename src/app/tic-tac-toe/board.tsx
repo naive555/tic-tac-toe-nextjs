@@ -22,7 +22,6 @@ const WINNING_COMBO: WonCombo[] = [
 export default function Board() {
   const [playerTurn, setPlayerTurn] = useState<boolean>(true);
   const [finish, setFinish] = useState<boolean>(false);
-  const [draw, setDraw] = useState<boolean>(false);
   const [modalTitle, setModalTitle] = useState<string>("");
 
   const [boardData, setBoardData] = useState<BoardData>({
@@ -39,29 +38,30 @@ export default function Board() {
 
   const [wonCombo, setWonCombo] = useState<WonCombo>([]);
 
-  const updateBoardData = (idx: number, value: string): void => {
-    if (boardData[idx]) return;
+  const updateBoardData = (index: number, value: string): void => {
+    if (boardData[index]) return;
 
-    setBoardData({ ...boardData, [idx]: value });
+    setBoardData({ ...boardData, [index]: value });
   };
 
-  const updatePlayerTurn = (idx: number): void => {
-    if (finish || boardData[idx]) return;
+  const updatePlayerTurn = (index: number): void => {
+    if (finish || boardData[index]) return;
 
-    updateBoardData(idx, "X");
+    updateBoardData(index, "X");
     setPlayerTurn(false);
   };
 
   const updateBotTurn = (): void => {
     if (finish) return;
 
-    const unsetIdx = Object.entries(boardData)
+    const unuseIndex = Object.entries(boardData)
       .filter(([_, value]) => !value)
       .map(([key]) => +key);
 
-    const randomIdx = unsetIdx[Math.floor(Math.random() * unsetIdx.length)];
+    const randomIndex =
+      unuseIndex[Math.floor(Math.random() * unuseIndex.length)];
 
-    updateBoardData(randomIdx, "O");
+    updateBoardData(randomIndex, "O");
     setPlayerTurn(true);
   };
 
@@ -69,7 +69,6 @@ export default function Board() {
     const isDraw = Object.keys(boardData).every((value) => boardData[+value]);
 
     if (isDraw) {
-      setDraw(true);
       setModalTitle("Match Draw!");
       setFinish(true);
     }
@@ -99,6 +98,16 @@ export default function Board() {
     return hasWinner;
   };
 
+  const judgeBoard = async () => {
+    if (checkWinner()) return;
+
+    if (checkDraw()) return;
+
+    if (!playerTurn && !finish) {
+      updateBotTurn();
+    }
+  };
+
   const reset = (): void => {
     setBoardData({
       0: "",
@@ -114,20 +123,11 @@ export default function Board() {
     setPlayerTurn(true);
     setFinish(false);
     setWonCombo([]);
-    setDraw(false);
     setModalTitle("");
   };
 
   useEffect(() => {
-    // Check for a winner first
-    if (checkWinner()) return;
-
-    // If no winner, check for a draw
-    if (checkDraw()) return;
-
-    if (!playerTurn && !finish) {
-      updateBotTurn();
-    }
+    judgeBoard();
   }, [boardData]);
 
   return (
@@ -138,16 +138,16 @@ export default function Board() {
           <p>{playerTurn ? "Player Turn" : "Bot Turn"}</p>
         </div>
         <div className="game__board">
-          {[...Array(9)].map((_, idx) => {
+          {[...Array(9)].map((_, index) => {
             return (
               <div
-                onClick={() => updatePlayerTurn(idx)}
-                key={idx}
+                onClick={() => updatePlayerTurn(index)}
+                key={index}
                 className={`square ${
-                  wonCombo.includes(idx) ? "highlight" : ""
+                  wonCombo.includes(index) ? "highlight" : ""
                 }`}
               >
-                {boardData[idx]}
+                {boardData[index]}
               </div>
             );
           })}
