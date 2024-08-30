@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { getData, setData } from "../../util/localstorage";
 
 type BoardData = {
   [key: number]: string;
@@ -19,10 +21,17 @@ const WINNING_COMBO: WonCombo[] = [
   [2, 4, 6],
 ];
 
+const BOARD_TURN = [true, false];
+
 export default function Board() {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const [playerTurn, setPlayerTurn] = useState<boolean>(true);
   const [finish, setFinish] = useState<boolean>(false);
   const [modalTitle, setModalTitle] = useState<string>("");
+  const [score, setScore] = useState<number>(0);
+  const [streak, setStreak] = useState<number>(0);
 
   const [boardData, setBoardData] = useState<BoardData>({
     0: "",
@@ -65,18 +74,19 @@ export default function Board() {
     setPlayerTurn(true);
   };
 
-  const checkDraw = (): boolean => {
+  const checkDraw = async (): Promise<boolean> => {
     const isDraw = Object.keys(boardData).every((value) => boardData[+value]);
 
     if (isDraw) {
       setModalTitle("Match Draw!");
+      setStreak(0);
       setFinish(true);
     }
 
     return isDraw;
   };
 
-  const checkWinner = (): boolean => {
+  const checkWinner = async (): Promise<boolean> => {
     let hasWinner = false;
 
     WINNING_COMBO.forEach((combo) => {
@@ -92,6 +102,19 @@ export default function Board() {
           `${!playerTurn ? "Winner Winner Chicken Dinner!!!" : "You Lose..."}`
         );
         hasWinner = true;
+
+        if (!playerTurn) {
+          setScore((oldScore) => (oldScore += 1));
+          if (streak >= 2) {
+            setScore((oldScore) => (oldScore += 1));
+            setStreak(0);
+          } else {
+            setStreak((oldStreak) => (oldStreak += 1));
+          }
+        } else {
+          score > 0 && setScore((oldScore) => (oldScore -= 1));
+          setStreak(0);
+        }
       }
     });
 
@@ -99,9 +122,9 @@ export default function Board() {
   };
 
   const judgeBoard = async () => {
-    if (checkWinner()) return;
+    if (await checkWinner()) return;
 
-    if (checkDraw()) return;
+    if (await checkDraw()) return;
 
     if (!playerTurn && !finish) {
       updateBotTurn();
@@ -120,7 +143,7 @@ export default function Board() {
       7: "",
       8: "",
     });
-    setPlayerTurn(true);
+    setPlayerTurn(BOARD_TURN[Math.floor(Math.random() * BOARD_TURN.length)]);
     setFinish(false);
     setWonCombo([]);
     setModalTitle("");
@@ -130,12 +153,28 @@ export default function Board() {
     judgeBoard();
   }, [boardData]);
 
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const { score = 0, streak = 0 } = JSON.parse(getData(user?.email) || "{}");
+    setScore(score);
+    setStreak(streak);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user?.email) return;
+    setData(user?.email, JSON.stringify({ score, streak }));
+  }, [score, streak]);
+
   return (
     <div>
       <h1>Tic Tac Toe</h1>
       <div className="game">
         <div className="game__menu">
           <p>{playerTurn ? "Player Turn" : "Bot Turn"}</p>
+          <p>
+            Score: {score}, Streak: {streak}
+          </p>
         </div>
         <div className="game__board">
           {[...Array(9)].map((_, index) => {
