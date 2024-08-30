@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1 {
+  text-align: center;
+}
+
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game__menu {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.game__board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 8px;
+}
+
+.square {
+  background-color: #eee;
+  color: black;
+  border-radius: 8px;
+  box-shadow: 0px 4px #ddd;
+  text-align: center;
+  font-size: 64px;
+  line-height: 100px;
+  font-weight: bold;
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.square.highlight {
+  background-color: aquamarine;
+  box-shadow: none;
+}
+
+.modal {
+  width: 250px;
+  border-radius: 16px;
+  box-shadow: 0px 0px 10px 0px gray;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  position: fixed;
+  top: 50%;
+  background-color: white;
+  color: black;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.2s;
+}
+
+.modal.show {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.modal__title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+button {
+  border: none;
+  width: 100%;
+  height: 36px;
+  font-size: 18px;
+  font-weight: 600;
+}
