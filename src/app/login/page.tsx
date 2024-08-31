@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Header from "@/components/header.component";
+
 import { LoginForm } from "./form";
 import { authOptions } from "../../lib/auth";
 
