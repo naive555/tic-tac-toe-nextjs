@@ -7,6 +7,7 @@ import Table from "./table";
 
 export async function getUsers() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`);
+
   if (!res.ok) {
     console.error("Failed to fetch data");
   }
@@ -25,14 +26,14 @@ export default async function LeaderBoard() {
   if (!process.env.NEXT_PUBLIC_API_URL) {
     return null;
   }
-  const data = await getUsers();
+
   return (
     <>
       <Header />
       <h1>
         <strong>LeaderBoard</strong>
       </h1>
-      <Table data={data} />
+      <Table />
     </>
   );
 }

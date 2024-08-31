@@ -3,12 +3,28 @@ import { mysqlPool } from "@/utils/db";
 
 import _ from "lodash";
 
+export type User = {
+  id: number;
+  email: string;
+  name: string;
+  image: string;
+  score: number;
+  streak: number;
+  created_at: Date;
+  updated_at: Date;
+};
+
 export async function GET(req: NextRequest) {
+  const email = req.nextUrl.searchParams.get("email");
+
   const promisePool = mysqlPool.promise();
 
-  const [rows, fields] = await promisePool.query(`SELECT * FROM users;`);
+  const [users] = await promisePool.query(
+    `SELECT * FROM users ${!email ? `;` : `WHERE email = ?;`}`,
+    [email]
+  );
 
-  return NextResponse.json(rows);
+  return NextResponse.json(users as User[]);
 }
 
 export async function POST(req: NextRequest) {
@@ -16,13 +32,12 @@ export async function POST(req: NextRequest) {
 
   const promisePool = mysqlPool.promise();
 
-  const [rows, fields] = await promisePool.query(
+  const [users] = await promisePool.query(
     `SELECT * FROM users WHERE email = ?;`,
     [email]
   );
 
-  const users = await NextResponse.json(rows).json();
-  const user = await _.first(users);
+  const user = _.first(users as User[]);
   if (user) {
     return NextResponse.json({ success: true });
   }
@@ -45,7 +60,7 @@ export async function PUT(req: NextRequest) {
   const promisePool = mysqlPool.promise();
 
   await promisePool.query(
-    `UPDATE users SET score = score + ?, streak = streak + ? WHERE email = ?;`,
+    `UPDATE users SET score = ?, streak = ? WHERE email = ?;`,
     [score, streak, email]
   );
 

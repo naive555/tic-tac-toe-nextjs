@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 export const LoginForm = () => {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/tic-tac-toe";
+  const callbackUrl = searchParams.get("callbackUrl") || "/login";
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

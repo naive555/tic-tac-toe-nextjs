@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { getData, setData } from "../../utils/localstorage";
+
+import { getUser } from "../profile/page";
+import Loader from "../../components/loading";
+
+import _ from "lodash";
 
 type BoardData = {
   [key: number]: string;
@@ -23,9 +27,33 @@ const WINNING_COMBO: WonCombo[] = [
 
 const BOARD_TURN = [true, false];
 
+export async function updateScore(
+  email: string,
+  score: number,
+  streak: number
+) {
+  if (!email) return;
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
+    method: "PUT",
+    body: JSON.stringify({
+      email,
+      score,
+      streak,
+    }),
+  });
+  if (!res.ok) {
+    console.error("Failed to fetch data");
+  }
+
+  return res.json();
+}
+
 export default function Board() {
   const { data: session } = useSession();
   const user = session?.user;
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [playerTurn, setPlayerTurn] = useState<boolean>(true);
   const [finish, setFinish] = useState<boolean>(false);
@@ -46,6 +74,16 @@ export default function Board() {
   });
 
   const [wonCombo, setWonCombo] = useState<WonCombo>([]);
+
+  const getScore = async () => {
+    setLoading(true);
+
+    const userRes = await getUser(user?.email || "");
+    setScore(userRes?.score || 0);
+    setStreak(userRes?.streak || 0);
+
+    setLoading(false);
+  };
 
   const updateBoardData = (index: number, value: string): void => {
     if (boardData[index]) return;
@@ -74,19 +112,21 @@ export default function Board() {
     setPlayerTurn(true);
   };
 
-  const checkDraw = async (): Promise<boolean> => {
-    const isDraw = Object.keys(boardData).every((value) => boardData[+value]);
+  const checkDraw = (): boolean => {
+    const isBoardFull = Object.keys(boardData).every(
+      (value) => boardData[+value]
+    );
 
-    if (isDraw) {
+    if (isBoardFull) {
       setModalTitle("Match Draw!");
       setStreak(0);
       setFinish(true);
     }
 
-    return isDraw;
+    return isBoardFull;
   };
 
-  const checkWinner = async (): Promise<boolean> => {
+  const checkWinner = (): boolean => {
     let hasWinner = false;
 
     WINNING_COMBO.forEach((combo) => {
@@ -124,13 +164,9 @@ export default function Board() {
   };
 
   const judgeBoard = async () => {
-    if (await checkWinner()) return;
-
-    if (await checkDraw()) return;
-
-    if (!playerTurn && !finish) {
-      updateBotTurn();
-    }
+    setLoading(true);
+    await updateScore(user?.email || "", score, streak);
+    setLoading(false);
   };
 
   const reset = (): void => {
@@ -152,31 +188,37 @@ export default function Board() {
   };
 
   useEffect(() => {
-    judgeBoard();
+    if (checkWinner()) return;
+
+    if (checkDraw()) return;
+
+    if (!playerTurn && !finish) {
+      updateBotTurn();
+    }
   }, [boardData]);
 
   useEffect(() => {
-    if (!user?.email) return;
-
-    const { score = 0, streak = 0 } = JSON.parse(getData(user?.email) || "{}");
-    setScore(score);
-    setStreak(streak);
-  }, [user]);
+    if (!finish) return;
+    judgeBoard();
+  }, [finish]);
 
   useEffect(() => {
     if (!user?.email) return;
-    setData(user?.email, JSON.stringify({ score, streak }));
-  }, [score, streak]);
+    getScore();
+  }, [user]);
+
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    return null;
+  }
 
   return (
     <div>
+      <Loader loading={loading} />
       <h1>Tic Tac Toe</h1>
       <div className="game">
         <div className="game__menu">
-          <p>{playerTurn ? "Player Turn" : "Bot Turn"}</p>
-          <p>
-            Score: {score}, Streak: {streak}
-          </p>
+          <p>{playerTurn ? "Your Turn" : "Bot Turn"}</p>
+          <p>Score: {score}</p>
         </div>
         <div className="game__board">
           {[...Array(9)].map((_, index) => {

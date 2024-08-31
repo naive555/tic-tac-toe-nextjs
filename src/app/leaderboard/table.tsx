@@ -4,16 +4,10 @@ import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import Avatar from "@mui/material/Avatar";
 
-type Users = {
-  id: number;
-  email: string;
-  name: string;
-  image: string;
-  score: number;
-  streak: number;
-  created_at: Date;
-  updated_at: Date;
-};
+import Loader from "../../components/loading";
+import { useEffect, useState } from "react";
+import { getUsers } from "./page";
+import { User } from "../api/users/route";
 
 const columns: GridColDef[] = [
   {
@@ -27,24 +21,47 @@ const columns: GridColDef[] = [
       />
     ),
   },
-  { field: "name", headerName: "Name", width: 300 },
-  { field: "email", headerName: "Email", width: 300 },
+  { field: "name", headerName: "Name", width: 400 },
+  { field: "email", headerName: "Email", width: 400 },
   { field: "score", headerName: "Score", width: 100 },
-  { field: "streak", headerName: "Streak", width: 100 },
 ];
 
 const paginationModel = { page: 0, pageSize: 5 };
 
-export default function Table({ data }: { data: Users[] }) {
+export default function Table() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const getLeaderBoard = async () => {
+    setLoading(true);
+
+    const usersRes = await getUsers();
+    setUsers(usersRes);
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    getLeaderBoard();
+  }, []);
+
   return (
-    <Paper sx={{ height: 600, width: "100%" }}>
-      <DataGrid
-        rows={data}
-        columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10]}
-        sx={{ border: 50 }}
-      />
-    </Paper>
+    <>
+      <Loader loading={loading} />
+      <Paper sx={{ height: 600, width: "100%" }}>
+        <DataGrid
+          rows={users}
+          columns={columns}
+          initialState={{
+            pagination: { paginationModel },
+            sorting: {
+              sortModel: [{ field: "score", sort: "desc" }],
+            },
+          }}
+          pageSizeOptions={[5, 10]}
+          sx={{ border: 50 }}
+        />
+      </Paper>
+    </>
   );
 }
