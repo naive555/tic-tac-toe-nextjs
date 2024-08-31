@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { getData, setData } from "../../util/localstorage";
+import { getData, setData } from "../../utils/localstorage";
 
 type BoardData = {
   [key: number]: string;
@@ -98,9 +98,7 @@ export default function Board() {
       ) {
         setFinish(true);
         setWonCombo([a, b, c]);
-        setModalTitle(
-          `${!playerTurn ? "Winner Winner Chicken Dinner!!!" : "You Lose..."}`
-        );
+
         hasWinner = true;
 
         if (!playerTurn) {
@@ -111,9 +109,13 @@ export default function Board() {
           } else {
             setStreak((oldStreak) => (oldStreak += 1));
           }
+
+          setModalTitle("Winner Winner Chicken Dinner!!!");
         } else {
           score > 0 && setScore((oldScore) => (oldScore -= 1));
           setStreak(0);
+
+          setModalTitle("You Lose...");
         }
       }
     });

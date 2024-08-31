@@ -40,6 +40,11 @@ const Header = () => {
                   Profile
                 </Link>
               </li>
+              <li>
+                <Link href="/leaderboard" className="text-ct-dark-600">
+                  Leaderboard
+                </Link>
+              </li>
               <li className="cursor-pointer" onClick={() => signOut()}>
                 Logout
               </li>

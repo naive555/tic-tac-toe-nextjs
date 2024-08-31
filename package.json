@@ -1,6 +1,6 @@
 {
-  "name": "oauth_nextjs",
-  "version": "0.1.0",
+  "name": "tic_tac_toe_1",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,12 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/cache": "^11.13.1",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/material": "^6.0.1",
+    "@mui/material-nextjs": "^6.0.1",
+    "@mui/x-data-grid": "^7.15.0",
+    "@types/lodash": "^4.17.7",
     "@types/node": "20.5.7",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.15",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
+    "lodash": "^4.17.21",
+    "mysql2": "^3.11.0",
     "next": "13.4.19",
     "next-auth": "^4.23.1",
     "postcss": "8.4.28",

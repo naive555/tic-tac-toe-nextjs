@@ -3,20 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 import Header from "@/components/header.component";
-import Board from "./board";
+import Table from "./table";
 
-export async function createOrUpdateUser() {
-  const session = await getServerSession(authOptions);
-  const user = session?.user;
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
-    method: "POST",
-    body: JSON.stringify({
-      name: user?.name,
-      email: user?.email,
-      image: user?.image,
-    }),
-  });
+export async function getUsers() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`);
   if (!res.ok) {
     console.error("Failed to fetch data");
   }
@@ -24,7 +14,7 @@ export async function createOrUpdateUser() {
   return res.json();
 }
 
-export default async function TicTacToe() {
+export default async function LeaderBoard() {
   const session = await getServerSession(authOptions);
   const user = session?.user;
 
@@ -32,10 +22,17 @@ export default async function TicTacToe() {
     redirect("/login");
   }
 
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    return null;
+  }
+  const data = await getUsers();
   return (
     <>
       <Header />
-      <Board />
+      <h1>
+        <strong>LeaderBoard</strong>
+      </h1>
+      <Table data={data} />
     </>
   );
 }
