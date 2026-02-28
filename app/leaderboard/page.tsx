@@ -1,18 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 import LeaderboardTable from '@/components/LeaderboardTable';
-
-type Score = {
-  id: string;
-  username: string;
-  score: number;
-  win: number;
-  lose: number;
-  draw: number;
-};
+import { Score } from '@/lib/types';
 
 export default function LeaderboardPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
