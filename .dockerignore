@@ -1,0 +1,41 @@
+# node
+node_modules
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# bun
+.bun
+bun.lock*
+
+# next
+.next
+out
+coverage
+
+# env
+.env
+.env.*
+!.env.production
+
+# git
+.git
+.gitignore
+
+# editor
+.vscode
+.idea
+
+# logs
+*.log
+
+# build artifacts
+dist
+build
+
+# docker (กัน copy เข้า image)
+docker-compose*
+compose.y*ml
+
+# misc
+.DS_Store

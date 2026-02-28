@@ -2,8 +2,10 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  turbopack: {
-    root: '/',
+  reactStrictMode: true,
+  output: 'standalone',
+  experimental: {
+    webpackMemoryOptimizations: true,
   },
 };
 
