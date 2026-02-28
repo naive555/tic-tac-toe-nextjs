@@ -17,8 +17,12 @@ export default function ScorePanel({ refreshKey }: Props) {
   const [score, setScore] = useState<Score | null>(null);
 
   const fetchData = async () => {
-    const res = await axios.get('/api/scores/me');
-    setScore(res.data);
+    try {
+      const res = await axios.get('/api/scores/me');
+      setScore(res.data);
+    } catch (error) {
+      console.error('[ScorePanel.fetchData] Failed:', error);
+    }
   };
 
   useEffect(() => {
