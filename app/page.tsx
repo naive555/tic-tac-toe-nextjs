@@ -1,5 +1,8 @@
-import { auth0 } from '@/lib/auth0';
 import Link from 'next/link';
+
+import LoginButton from '@/components/LoginButton';
+import LogoutButton from '@/components/LogoutButton';
+import { auth0 } from '@/lib/auth0';
 
 export default async function Home() {
   const session = await auth0.getSession();
@@ -11,28 +14,19 @@ export default async function Home() {
         <h1 className="text-3xl font-bold tracking-tight">Tic Tac Toe</h1>
 
         {!session ? (
-          <a
-            href="/auth/login"
-            className="block w-full px-4 py-2 bg-black text-white rounded-lg hover:opacity-90 transition">
-            Login with Auth0
-          </a>
+          <LoginButton />
         ) : (
           <div className="space-y-4">
             <p className="text-gray-600">
               Welcome <span className="font-semibold">{userName}</span>
             </p>
-
             <Link
               href="/game"
               className="block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
               Play Game
             </Link>
 
-            <a
-              href="/auth/logout"
-              className="block w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
-              Logout
-            </a>
+            <LogoutButton />
           </div>
         )}
       </div>

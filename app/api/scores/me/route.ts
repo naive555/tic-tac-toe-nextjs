@@ -1,10 +1,10 @@
-import { auth0 } from '@/lib/auth0';
 import axios from 'axios';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-import { serverApi } from '../../../../lib/api';
+import { serverApi } from '@/lib/api';
+import { auth0 } from '@/lib/auth0';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const session = await auth0.getSession();
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const api = serverApi(session.tokenSet.accessToken);
-    const res = await api.get('/api/scores/me');
+    const res = await api.get('/scores/me');
 
     return NextResponse.json(res.data);
   } catch (error) {

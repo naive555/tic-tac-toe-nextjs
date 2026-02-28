@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 
+import Navbar from '@/components/Navbar';
+import { getUser } from '@/lib/auth0';
+
 const geistSans = Geist({
   variable: '--font-sans',
   subsets: ['latin'],
@@ -13,19 +16,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Tic Tac Toe | Full Stack Test',
+  title: 'Tic Tac Toe',
   description: 'OAuth 2.0 secured Tic Tac Toe game with scoring system',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getUser();
+
   return (
     <html lang="en" className="h-full">
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-full bg-gray-50 text-gray-900 antialiased`}>
+        <Navbar user={user} />
         <div className="min-h-screen">{children}</div>
       </body>
     </html>

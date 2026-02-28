@@ -6,7 +6,11 @@ import axios from 'axios';
 
 const emptyBoard: GameMark[] = Array(9).fill(null);
 
-export default function GameBoard() {
+type Props = {
+  onFinished?: () => void;
+};
+
+export default function GameBoard({ onFinished }: Props) {
   const [board, setBoard] = useState<GameMark[]>(emptyBoard);
   const [result, setResult] = useState<GameResult>(null);
   const [loading, setLoading] = useState(false);
@@ -24,8 +28,12 @@ export default function GameBoard() {
 
       setBoard(res.data.board);
       setResult(res.data.result);
+
+      if (res.data.result) {
+        onFinished?.();
+      }
     } catch (error) {
-      console.error('[handleMove] Failed With:', error);
+      console.error('[GameBoard.handleMove] Failed:', error);
     } finally {
       setLoading(false);
     }

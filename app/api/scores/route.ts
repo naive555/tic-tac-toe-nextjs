@@ -1,19 +1,19 @@
 import axios from 'axios';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import { serverApi } from '@/lib/api';
 import { auth0 } from '@/lib/auth0';
 
-export async function POST(req: NextRequest) {
+export async function GET() {
   const session = await auth0.getSession();
+
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const api = serverApi(session.tokenSet.accessToken);
-    const body = await req.json();
-    const res = await api.post('/game/play', body);
+    const res = await api.get('/scores');
 
     return NextResponse.json(res.data);
   } catch (error) {

@@ -6,3 +6,14 @@ export const auth0 = new Auth0Client({
     scope: 'openid profile email',
   },
 });
+
+export async function getUser() {
+  const session = await auth0.getSession();
+
+  if (!session?.user) return null;
+
+  return {
+    id: session.user.sub ?? '',
+    username: session.user.name ?? 'User',
+  };
+}

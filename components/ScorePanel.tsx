@@ -9,16 +9,21 @@ interface Score {
   winStreak: number;
 }
 
-export default function ScorePanel() {
+type Props = {
+  refreshKey: number;
+};
+
+export default function ScorePanel({ refreshKey }: Props) {
   const [score, setScore] = useState<Score | null>(null);
 
+  const fetchData = async () => {
+    const res = await axios.get('/api/scores/me');
+    setScore(res.data);
+  };
+
   useEffect(() => {
-    axios.get('/api/scores/me').then((res) => {
-      setScore(res.data);
-    });
-  }, []);
+    fetchData();
+  }, [refreshKey]);
 
-  if (!score) return null;
-
-  return <ScoreCard score={score.score} winStreak={score.winStreak} />;
+  return <ScoreCard score={score?.score} winStreak={score?.winStreak} />;
 }

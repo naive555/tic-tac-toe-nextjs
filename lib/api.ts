@@ -10,7 +10,7 @@ export const api = axios.create({
 
 export const serverApi = (token: string) =>
   axios.create({
-    baseURL: BACKEND_URL,
+    baseURL: `${BACKEND_URL}/api`,
     headers: {
       Authorization: `Bearer ${token}`,
     },
