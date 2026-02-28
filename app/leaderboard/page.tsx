@@ -15,7 +15,7 @@ export default function LeaderboardPage() {
     try {
       await Promise.all([
         axios.get('/api/scores/me').then((res) => {
-          setCurrentUserId(res.data.id as string);
+          setCurrentUserId(res.data?.id as string | null);
         }),
         axios.get('/api/scores').then((res) => {
           setScores(res.data as Score[]);
