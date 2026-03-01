@@ -31,12 +31,6 @@ This client handles authentication, gameplay UI, leaderboard display, and commun
 ### 1. Install dependencies
 
 ```bash
-npm install
-# or
-yarn
-# or
-pnpm install
-# or
 bun install
 ```
 
@@ -45,8 +39,11 @@ bun install
 Create a `.env.local` file:
 
 ```env
+NODE_ENV=local
+
 APP_BASE_URL=http://localhost:3000
 NEXT_PUBLIC_API_URL=http://localhost:4000
+
 AUTH0_SECRET=your_secret
 AUTH0_ISSUER_BASE_URL=https://your-domain.auth0.com
 AUTH0_CLIENT_ID=your_client_id
@@ -58,13 +55,7 @@ Make sure backend is running before starting frontend.
 ### 3. Run development server
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun run dev
 ```
 
 Open:
@@ -79,9 +70,11 @@ http://localhost:3000
 
 ```
 app/
-  page.tsx          # Main game page
-  leaderboard/      # Leaderboard page
   api/              # API handlers
+  game/             # Main game page
+  leaderboard/      # Leaderboard page
+  profile/          # Profile page
+  page.tsx          # Authentication page
 components/
   Board.tsx
   ScoreBoard.tsx
@@ -114,7 +107,7 @@ lib/
 
 ```bash
 bun run build
-bun start
+bun run start
 ```
 
 ---
