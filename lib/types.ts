@@ -2,6 +2,11 @@ export type GameMark = 'X' | 'O' | null;
 
 export type GameResult = 'WIN' | 'LOSE' | 'DRAW' | null;
 
+export interface PlayRequest {
+  board: GameMark[];
+  position: number;
+}
+
 export interface PlayResponse {
   board: GameMark[];
   result: GameResult;
