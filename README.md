@@ -90,7 +90,7 @@ lib/
 2. Player clicks a cell
 3. Frontend sends:
    ```
-   POST /game/play
+   POST /api/game/play
    ```
 4. Backend returns:
    ```
@@ -140,9 +140,9 @@ Make sure backend API URL is updated in production environment variables.
 
 This frontend requires the backend running with:
 
-- `/game/play`
-- `/score/me`
-- `/score/leaderboard`
+- `/api/game/play`
+- `/api/scores/me`
+- `/api/scores`
 
 ---
 
