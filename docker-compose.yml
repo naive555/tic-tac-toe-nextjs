@@ -1,3 +1,5 @@
+name: ttt-frontend
+
 services:
   frontend:
     build:
