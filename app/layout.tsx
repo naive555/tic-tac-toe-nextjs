@@ -28,11 +28,11 @@ export default async function RootLayout({
   const user = await getUser();
 
   return (
-    <html lang="en" className="h-full">
+    <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-full bg-gray-50 text-gray-900 antialiased`}>
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-gray-50 text-gray-900 antialiased`}>
         <Navbar user={user} />
-        <div className="min-h-screen">{children}</div>
+        {children}
       </body>
     </html>
   );
