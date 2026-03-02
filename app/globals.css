@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 * {
   box-sizing: border-box;
 }
@@ -7,12 +9,6 @@
 html,
 body {
   height: 100%;
-}
-
-body {
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  background-color: #f9fafb; 
-  color: #111827; 
 }
 
 html {

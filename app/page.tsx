@@ -10,15 +10,20 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 text-center space-y-6">
-        <h1 className="text-3xl font-bold tracking-tight">Tic Tac Toe</h1>
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 shadow-lg rounded-2xl p-8 text-center space-y-6">
+        <h1 className="text-3xl font-bold tracking-tight dark:text-white">
+          Tic Tac Toe
+        </h1>
 
         {!user ? (
           <LoginButton />
         ) : (
           <div className="space-y-4">
-            <p className="text-gray-600">
-              Welcome <span className="font-semibold">{userName}</span>
+            <p className="text-gray-600 dark:text-gray-400">
+              Welcome{' '}
+              <span className="font-semibold dark:text-gray-200">
+                {userName}
+              </span>
             </p>
             <Link
               href="/game"

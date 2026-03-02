@@ -7,9 +7,9 @@ import { playGame } from '../lib/game.api';
 const createEmptyBoard = (): GameMark[] => Array(9).fill(null);
 
 const RESULT_STYLES: Record<string, string> = {
-  WIN: 'bg-green-100 text-green-700 border-green-300',
-  LOSE: 'bg-red-100 text-red-700 border-red-300',
-  DRAW: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+  WIN: 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700',
+  LOSE: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900 dark:text-red-300 dark:border-red-700',
+  DRAW: 'bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-300 dark:border-yellow-700',
 };
 
 const RESULT_MESSAGES: Record<string, string> = {
@@ -62,7 +62,7 @@ export default function GameBoard({ onFinished }: Props) {
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10 text-sm font-medium">
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-900/70 z-10 text-sm font-medium dark:text-white">
             Thinking...
           </div>
         )}
@@ -73,14 +73,16 @@ export default function GameBoard({ onFinished }: Props) {
               key={`cell-${i}`}
               onClick={() => handleMove(i)}
               disabled={loading || !!result}
-              className="w-20 h-20 border text-2xl font-bold flex items-center justify-center transition hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed">
+              className="w-20 h-20 border dark:border-gray-600 bg-white dark:bg-gray-900 text-2xl font-bold flex items-center justify-center transition hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-white disabled:opacity-60 disabled:cursor-not-allowed">
               {cell}
             </button>
           ))}
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+      )}
 
       {result && (
         <div
@@ -92,7 +94,7 @@ export default function GameBoard({ onFinished }: Props) {
       <button
         onClick={reset}
         disabled={loading}
-        className="px-4 py-2 border rounded transition hover:bg-gray-100 disabled:opacity-60">
+        className="px-4 py-2 border dark:border-gray-600 bg-white dark:bg-gray-900 rounded transition hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-white disabled:opacity-60">
         Reset
       </button>
     </div>

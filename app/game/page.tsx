@@ -13,7 +13,7 @@ export default function GamePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-8">
-      <h1 className="text-3xl font-bold">Tic Tac Toe</h1>
+      <h1 className="text-3xl font-bold dark:text-white">Tic Tac Toe</h1>
       <ScorePanel refreshKey={refreshKey} />
       <GameBoard onFinished={handleGameFinished} />
     </div>

@@ -33,7 +33,7 @@ export default function LeaderboardPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen text-gray-500 dark:text-gray-400">
         Loading leaderboard...
       </div>
     );
@@ -41,8 +41,9 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen p-10">
-      <h1 className="text-3xl font-bold mb-6 text-center">Leaderboard</h1>
-
+      <h1 className="text-3xl font-bold mb-6 text-center dark:text-white">
+        Leaderboard
+      </h1>
       <LeaderboardTable scores={scores} currentUserId={currentUserId} />
     </div>
   );

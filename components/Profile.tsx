@@ -10,8 +10,10 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="loading-state">
-        <div className="loading-text">Loading user profile...</div>
+      <div className="flex items-center justify-center p-8">
+        <p className="text-gray-500 dark:text-gray-400">
+          Loading user profile...
+        </p>
       </div>
     );
   }
@@ -22,20 +24,20 @@ export default function Profile() {
   const avatarSrc = user.picture ?? FALLBACK_AVATAR;
 
   return (
-    <div className="profile-card action-card">
+    <div className="flex flex-col items-center gap-4 p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
       <Image
         width={200}
         height={200}
         src={avatarSrc}
         alt={`${displayName} profile`}
-        className="profile-picture"
+        className="rounded-full"
         onError={(e) => {
           (e.target as HTMLImageElement).src = FALLBACK_AVATAR;
         }}
         unoptimized
       />
-      <h2 className="profile-name">{displayName}</h2>
-      <p className="profile-email">{user.email}</p>
+      <h2 className="text-2xl font-bold dark:text-white">{displayName}</h2>
+      <p className="text-gray-500 dark:text-gray-400">{user.email}</p>
     </div>
   );
 }
