@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-import { PlayRequest, PlayResponse } from './types';
+import { Difficulty, StartGameResponse, PlayResponse } from './types';
 
-export const playGame = (payload: PlayRequest) =>
-  axios.post<PlayResponse>('/api/game/play', payload);
+export const startGame = (difficulty: Difficulty) =>
+  axios.post<StartGameResponse>('/api/game/start', { difficulty });
+
+export const makeMove = (gameId: string, position: number) =>
+  axios.post<PlayResponse>(`/api/game/${gameId}/move`, { position });

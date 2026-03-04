@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   try {
     const api = serverApi(session.tokenSet.accessToken);
     const body = await req.json();
-    const res = await api.post('/game/play', body);
+    const res = await api.post('/game/start', body);
 
     return NextResponse.json(res.data);
   } catch (error) {

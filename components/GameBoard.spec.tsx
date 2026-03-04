@@ -8,11 +8,16 @@ import GameBoard from './GameBoard';
 
 vi.mock('../lib/game.api');
 
-const mockPlayGame = vi.mocked(gameApi.playGame);
+const mockStartGame = vi.mocked(gameApi.startGame);
+const mockMakeMove = vi.mocked(gameApi.makeMove);
 
 const emptyBoard: GameMark[] = Array(9).fill(null);
 
-const mockResponse = (board: GameMark[], result: GameResult) =>
+const mockGameId = 'game-123';
+
+const mockStartResponse = () => Promise.resolve({ data: { id: mockGameId } });
+
+const mockMoveResponse = (board: GameMark[], result: GameResult) =>
   Promise.resolve({ data: { board, result } });
 
 beforeEach(() => {
@@ -24,7 +29,7 @@ describe('GameBoard', () => {
     it('renders 9 empty cells and reset button', () => {
       render(<GameBoard />);
       const buttons = screen.getAllByRole('button');
-      expect(buttons).toHaveLength(10);
+      expect(buttons).toHaveLength(10); // 9 cells + reset
       expect(screen.getByText('Reset')).toBeInTheDocument();
     });
 
@@ -36,26 +41,40 @@ describe('GameBoard', () => {
   });
 
   describe('handleMove', () => {
-    it('calls playGame with correct args on cell click', async () => {
+    it('calls startGame then makeMove on first cell click', async () => {
       const user = userEvent.setup();
-      mockPlayGame.mockResolvedValueOnce(
-        mockResponse(emptyBoard, null) as never,
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockResolvedValueOnce(
+        mockMoveResponse(emptyBoard, null) as never,
       );
 
       render(<GameBoard />);
       await user.click(screen.getAllByRole('button')[0]);
 
-      expect(mockPlayGame).toHaveBeenCalledWith({
-        board: emptyBoard,
-        position: 0,
-      });
+      expect(mockStartGame).toHaveBeenCalledTimes(1);
+      expect(mockMakeMove).toHaveBeenCalledWith(mockGameId, 0);
+    });
+
+    it('does not call startGame again on second move', async () => {
+      const user = userEvent.setup();
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove
+        .mockResolvedValueOnce(mockMoveResponse(emptyBoard, null) as never)
+        .mockResolvedValueOnce(mockMoveResponse(emptyBoard, null) as never);
+
+      render(<GameBoard />);
+      await user.click(screen.getAllByRole('button')[0]);
+      await user.click(screen.getAllByRole('button')[1]);
+
+      expect(mockStartGame).toHaveBeenCalledTimes(1);
+      expect(mockMakeMove).toHaveBeenCalledTimes(2);
+      expect(mockMakeMove).toHaveBeenNthCalledWith(2, mockGameId, 1);
     });
 
     it('disables all cells while loading', async () => {
       const user = userEvent.setup();
-
-      // never resolves, stays loading
-      mockPlayGame.mockReturnValueOnce(new Promise(() => {}));
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockReturnValueOnce(new Promise(() => {}));
 
       render(<GameBoard />);
       await user.click(screen.getAllByRole('button')[0]);
@@ -64,27 +83,40 @@ describe('GameBoard', () => {
       cells.forEach((cell) => expect(cell).toBeDisabled());
     });
 
-    it('does not call playGame on already-filled cell', async () => {
+    it('does not call makeMove on already-filled cell', async () => {
       const user = userEvent.setup();
-      const boardWithX = ['X', ...Array(8).fill(null)];
-      mockPlayGame.mockResolvedValueOnce(
-        mockResponse(boardWithX, null) as never,
+      const boardWithX = ['X', ...Array(8).fill(null)] as GameMark[];
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockResolvedValueOnce(
+        mockMoveResponse(boardWithX, null) as never,
       );
 
       render(<GameBoard />);
-
-      // click cell 0 to fill it
       await user.click(screen.getAllByRole('button')[0]);
+      await waitFor(() => expect(mockMakeMove).toHaveBeenCalledTimes(1));
 
-      // click again
       await user.click(screen.getAllByRole('button')[0]);
-
-      expect(mockPlayGame).toHaveBeenCalledTimes(1);
+      expect(mockMakeMove).toHaveBeenCalledTimes(1);
     });
 
-    it('shows error message when playGame throws', async () => {
+    it('shows error message when startGame throws', async () => {
       const user = userEvent.setup();
-      mockPlayGame.mockRejectedValueOnce(new Error('Network error'));
+      mockStartGame.mockRejectedValueOnce(new Error('Network error'));
+
+      render(<GameBoard />);
+      await user.click(screen.getAllByRole('button')[0]);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Something went wrong. Please try again.'),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('shows error message when makeMove throws', async () => {
+      const user = userEvent.setup();
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockRejectedValueOnce(new Error('Network error'));
 
       render(<GameBoard />);
       await user.click(screen.getAllByRole('button')[0]);
@@ -101,8 +133,9 @@ describe('GameBoard', () => {
     it('shows WIN message and calls onFinished', async () => {
       const user = userEvent.setup();
       const onFinished = vi.fn();
-      mockPlayGame.mockResolvedValueOnce(
-        mockResponse(emptyBoard, 'WIN') as never,
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockResolvedValueOnce(
+        mockMoveResponse(emptyBoard, 'WIN') as never,
       );
 
       render(<GameBoard onFinished={onFinished} />);
@@ -116,8 +149,9 @@ describe('GameBoard', () => {
 
     it('shows LOSE message', async () => {
       const user = userEvent.setup();
-      mockPlayGame.mockResolvedValueOnce(
-        mockResponse(emptyBoard, 'LOSE') as never,
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockResolvedValueOnce(
+        mockMoveResponse(emptyBoard, 'LOSE') as never,
       );
 
       render(<GameBoard />);
@@ -130,8 +164,9 @@ describe('GameBoard', () => {
 
     it('shows DRAW message', async () => {
       const user = userEvent.setup();
-      mockPlayGame.mockResolvedValueOnce(
-        mockResponse(emptyBoard, 'DRAW') as never,
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockResolvedValueOnce(
+        mockMoveResponse(emptyBoard, 'DRAW') as never,
       );
 
       render(<GameBoard />);
@@ -144,8 +179,9 @@ describe('GameBoard', () => {
 
     it('disables cells after game ends', async () => {
       const user = userEvent.setup();
-      mockPlayGame.mockResolvedValueOnce(
-        mockResponse(emptyBoard, 'WIN') as never,
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockResolvedValueOnce(
+        mockMoveResponse(emptyBoard, 'WIN') as never,
       );
 
       render(<GameBoard />);
@@ -159,15 +195,15 @@ describe('GameBoard', () => {
   });
 
   describe('Reset', () => {
-    it('clears board and result after reset', async () => {
+    it('clears board, result, and gameId after reset', async () => {
       const user = userEvent.setup();
-      mockPlayGame.mockResolvedValueOnce(
-        mockResponse(emptyBoard, 'WIN') as never,
+      mockStartGame.mockResolvedValueOnce(mockStartResponse() as never);
+      mockMakeMove.mockResolvedValueOnce(
+        mockMoveResponse(emptyBoard, 'WIN') as never,
       );
 
       render(<GameBoard />);
       await user.click(screen.getAllByRole('button')[0]);
-
       await waitFor(() => screen.getByText('You Win 🎉'));
 
       await user.click(screen.getByText('Reset'));
@@ -177,9 +213,26 @@ describe('GameBoard', () => {
       cells.forEach((cell) => expect(cell).toHaveTextContent(''));
     });
 
+    it('calls startGame again after reset', async () => {
+      const user = userEvent.setup();
+      mockStartGame.mockResolvedValue(mockStartResponse() as never);
+      mockMakeMove.mockResolvedValue(
+        mockMoveResponse(emptyBoard, null) as never,
+      );
+
+      render(<GameBoard />);
+      await user.click(screen.getAllByRole('button')[0]);
+      await waitFor(() => expect(mockMakeMove).toHaveBeenCalledTimes(1));
+
+      await user.click(screen.getByText('Reset'));
+      await user.click(screen.getAllByRole('button')[0]);
+
+      expect(mockStartGame).toHaveBeenCalledTimes(2);
+    });
+
     it('clears error message after reset', async () => {
       const user = userEvent.setup();
-      mockPlayGame.mockRejectedValueOnce(new Error('fail'));
+      mockStartGame.mockRejectedValueOnce(new Error('fail'));
 
       render(<GameBoard />);
       await user.click(screen.getAllByRole('button')[0]);

@@ -3,15 +3,13 @@ export type GameMark = 'X' | 'O' | null;
 export type GameResult = 'WIN' | 'LOSE' | 'DRAW' | null;
 
 export enum Difficulty {
-  EASY = 'easy',
-  MEDIUM = 'medium',
-  HARD = 'hard',
+  EASY = 'EASY',
+  MEDIUM = 'MEDIUM',
+  HARD = 'HARD',
 }
 
-export interface PlayRequest {
-  board: GameMark[];
-  position: number;
-  difficulty: Difficulty;
+export interface StartGameResponse {
+  id: string;
 }
 
 export interface PlayResponse {

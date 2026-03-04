@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { makeMove, startGame } from '@/lib/game.api';
 import { Difficulty, GameMark, GameResult } from '@/lib/types';
-import { playGame } from '@/lib/game.api';
+import { useState } from 'react';
 
 const createEmptyBoard = (): GameMark[] => Array(9).fill(null);
 
@@ -25,9 +25,17 @@ type Props = {
 export default function GameBoard({ onFinished }: Props) {
   const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.MEDIUM);
   const [board, setBoard] = useState<GameMark[]>(createEmptyBoard());
+  const [gameId, setGameId] = useState<string | null>(null);
   const [result, setResult] = useState<GameResult>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const getOrCreateGameId = async (): Promise<string> => {
+    if (gameId) return gameId;
+    const res = await startGame(difficulty);
+    setGameId(res.data.id);
+    return res.data.id;
+  };
 
   const handleMove = async (index: number) => {
     if (board[index] || result || loading) return;
@@ -36,7 +44,8 @@ export default function GameBoard({ onFinished }: Props) {
       setLoading(true);
       setError(null);
 
-      const res = await playGame({ board, position: index, difficulty });
+      const id = await getOrCreateGameId();
+      const res = await makeMove(id, index);
 
       setBoard(res.data.board);
       setResult(res.data.result);
@@ -57,6 +66,7 @@ export default function GameBoard({ onFinished }: Props) {
     setBoard(createEmptyBoard());
     setResult(null);
     setError(null);
+    setGameId(null);
   };
 
   const gameStarted = board.some((cell) => cell !== null);
