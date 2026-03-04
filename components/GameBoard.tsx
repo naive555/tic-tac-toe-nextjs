@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { GameMark, GameResult } from '@/lib/types';
-import { playGame } from '../lib/game.api';
+import { Difficulty, GameMark, GameResult } from '@/lib/types';
+import { playGame } from '@/lib/game.api';
 
 const createEmptyBoard = (): GameMark[] => Array(9).fill(null);
 
@@ -23,6 +23,7 @@ type Props = {
 };
 
 export default function GameBoard({ onFinished }: Props) {
+  const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.MEDIUM);
   const [board, setBoard] = useState<GameMark[]>(createEmptyBoard());
   const [result, setResult] = useState<GameResult>(null);
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,7 @@ export default function GameBoard({ onFinished }: Props) {
       setLoading(true);
       setError(null);
 
-      const res = await playGame({ board, position: index });
+      const res = await playGame({ board, position: index, difficulty });
 
       setBoard(res.data.board);
       setResult(res.data.result);
@@ -58,8 +59,25 @@ export default function GameBoard({ onFinished }: Props) {
     setError(null);
   };
 
+  const gameStarted = board.some((cell) => cell !== null);
+
   return (
     <div className="flex flex-col items-center gap-4">
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-medium dark:text-gray-300">
+          Difficulty:
+        </label>
+        <select
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+          disabled={gameStarted || !!result || loading}
+          className="text-sm border dark:border-gray-600 bg-white dark:bg-gray-900 dark:text-white rounded px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed">
+          <option value={Difficulty.EASY}>Easy</option>
+          <option value={Difficulty.MEDIUM}>Medium</option>
+          <option value={Difficulty.HARD}>Hard</option>
+        </select>
+      </div>
+
       <div className="relative">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-900/70 z-10 text-sm font-medium dark:text-white">
